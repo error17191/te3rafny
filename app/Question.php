@@ -22,4 +22,14 @@ class Question extends Model
         return $this->hasMany(Answer::class);
     }
 
+    public function scopeRandom($query)
+    {
+        return $query->inRandomOrder()->first();
+    }
+
+    public function scopeRandomForUser($query,$user)
+    {
+        return $query->inRandomOrder()->whereNotIn('id',$user->questions()->pluck('questions.id'))->first();
+    }
+
 }
