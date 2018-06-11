@@ -14,7 +14,6 @@ class CreateUserQuestionsTable extends Migration
     public function up()
     {
         Schema::create('user_questions', function (Blueprint $table) {
-            $table->increments('id');
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('question_id')->index();
             $table->unsignedInteger('correct_choice_id');
