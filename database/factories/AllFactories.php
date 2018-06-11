@@ -21,3 +21,23 @@ $factory->define(App\User::class, function (Faker $faker) {
         'remember_token' => str_random(10),
     ];
 });
+
+
+$factory->define(App\Question::class, function (Faker $faker) {
+    return [
+        'content' => $faker->sentence
+    ];
+});
+
+
+$factory->define(App\Choice::class, function (Faker $faker) {
+    return [
+        'content' => $faker->sentence,
+        'question_id' => function () {
+            return factory(App\Question::class)->create()->id;
+        }
+    ];
+});
+
+
+

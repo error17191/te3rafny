@@ -1,0 +1,9 @@
+
+#Admin Can Create Questions with its choices
+
+#User Can add a question to him by selecting his correct answer
+
+
+
+
+
