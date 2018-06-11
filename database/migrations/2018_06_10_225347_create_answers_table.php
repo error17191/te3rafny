@@ -18,7 +18,6 @@ class CreateAnswersTable extends Migration
             $table->unsignedInteger('asked_by_id')->index();
             $table->unsignedInteger('question_id');
             $table->unsignedInteger('choice_id');
-            $table->boolean('correct');
             $table->timestamps();
 
             $table->foreign('answered_by_id')->references('id')->on('users');

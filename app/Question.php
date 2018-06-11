@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Question extends Model
 {
+
+    protected $fillable = ['content'];
+
+    protected $hidden = ['public', 'created_at', 'updated_at'];
+
     public function choices()
     {
         return $this->hasMany(Choice::class);
@@ -20,16 +25,6 @@ class Question extends Model
     public function answers()
     {
         return $this->hasMany(Answer::class);
-    }
-
-    public function scopeRandom($query)
-    {
-        return $query->inRandomOrder()->first();
-    }
-
-    public function scopeRandomForUser($query,$user)
-    {
-        return $query->inRandomOrder()->whereNotIn('id',$user->questions()->pluck('questions.id'))->first();
     }
 
 }

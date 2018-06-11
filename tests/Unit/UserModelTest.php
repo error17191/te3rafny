@@ -2,9 +2,11 @@
 
 namespace Tests\Unit;
 
+use App\Answer;
 use App\Choice;
 use App\Question;
 use App\User;
+use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -21,7 +23,7 @@ class UserModelTest extends TestCase
             'question_id' => $question->id
         ]);
 
-        $user->addQuestion($question, $choices[1]);
+        $user->attachQuestion($question, $choices[1]);
 
         $this->assertCount(1, $user->questions);
 
@@ -41,7 +43,7 @@ class UserModelTest extends TestCase
             'question_id' => $question->id
         ]);
 
-        $user->addQuestion($question, $choices[1]);
+        $user->attachQuestion($question, $choices[1]);
 
         $this->assertTrue($user->isCorrectChoice($question, $choices[1]));
     }
@@ -67,5 +69,54 @@ class UserModelTest extends TestCase
         $this->assertNull($user->getCorrectChoice($question));
     }
 
+    /** @test */
+
+    public function it_can_return_all_questions_asked_by_this_user()
+    {
+        $choice = factory(Choice::class)->create();
+        $user = factory(User::class)->create();
+
+        $user->attachQuestion($choice->question, $choice);
+
+        $this->assertInstanceOf(Collection::class, $user->questions);
+        $this->assertInstanceOf(Question::class, $user->questions->first());
+    }
+
+    /** @test */
+
+    public function it_can_return_the_correct_choice_by_this_user_for_some_question()
+    {
+        $choice = factory(Choice::class)->create();
+        $user = factory(User::class)->create();
+
+        $user->attachQuestion($choice->question, $choice);
+
+        $this->assertEquals($choice->id, $user->getCorrectChoice($choice->question)->id);
+    }
+
+    /** @test */
+
+    public function it_can_return_the_correct_choice_id_by_this_user_for_some_question()
+    {
+        $choice = factory(Choice::class)->create();
+        $user = factory(User::class)->create();
+
+        $user->attachQuestion($choice->question, $choice);
+
+        $this->assertEquals($choice->id, $user->getCorrectChoiceId($choice->question));
+    }
+
+    /** @test */
+    public function it_can_get_question_answered_by_some_one_else()
+    {
+        $askedBy = factory(User::class)->create();
+        $answerdBy = factory(User::class)->create();
+        $choice = factory(Choice::class)->create();
+
+        $askedBy->attachQuestion($choice->question,$choice);
+        $askedBy->getQuestionAnswered($answerdBy,$choice->question,$choice);
+
+        $this->assertCount(1,Answer::all());
+    }
 
 }

@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -38,7 +39,7 @@ class User extends Authenticatable
         return $this->admin;
     }
 
-    public function addQuestion($question, $choice)
+    public function attachQuestion($question, $choice)
     {
         return $this->questions()->attach($question, [
             'correct_choice_id' => $choice->id
@@ -62,4 +63,11 @@ class User extends Authenticatable
         return Choice::find($this->getCorrectChoiceId($question));
     }
 
+    public function getQuestionsWithAnswersBy($user)
+    {
+        return $this->questions()->join('answers', function ($join) use ($user) {
+            $join->on('users.id', 'answers.asked_by_id')
+                ->where('answered_by_id', '=', $user->id);
+        })->get();
+    }
 }
