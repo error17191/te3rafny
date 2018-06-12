@@ -22,7 +22,6 @@
             };
         },
         mounted() {
-            bus.$on('question-answered', () => this.questionsCount++)
             bus.$on('init-data-ready', () => {
                 this.show = true;
                 this.accepted = appData.numbers.accepted;
@@ -33,15 +32,6 @@
                 this.accepted++;
             });
         },
-
-        watch: {
-            questionsCount: function (count) {
-                if (count >= this.minQuestions) {
-                    this.readyToGo = true;
-                }
-            }
-        }
-
 
     }
 </script>

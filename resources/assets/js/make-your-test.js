@@ -10,13 +10,14 @@ window.Vue = require('vue');
 
 window.bus = new Vue();
 Vue.component('spinner',require('./components/Spinner.vue'));
+Vue.component('horizontal-or',require('./components/HorizontalOr.vue'));
 const app = new Vue({
     el: '#app',
     components: {
         question: require('./components/Question.vue'),
-        'question-counter' : require('./components/QuestionsCount.vue')
-    }
-
+        'question-counter' : require('./components/QuestionsCount.vue'),
+        'add-question' : require('./components/AddQuestionScreen.vue')
+    },
 });
 axios.get('/make-your-test/init').then(response => {
     window.appData = response.data;

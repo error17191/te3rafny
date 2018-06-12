@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 class MakeYourTestController extends Controller
 {
     const MIN_TEST_QUESTIONS = 5;
-    const MAX_TEST_QUESTIONS = 20;
+    const MAX_TEST_QUESTIONS = 7;
 
     public function __construct()
     {
@@ -45,8 +45,16 @@ class MakeYourTestController extends Controller
         // if the user reached end before reaching the limit and has skipped questions clear skipped questions
         // if the user reached end before reaching the limit and has not skipped questions don't send questions
         $allQuestionsCount = Question::count();
+
+        if ($allQuestionsCount == 0) {
+            return response()->json([
+                'no_questions' => true
+            ]);
+        }
+
         $userQuestionsIds = auth()->user()->questions()->pluck('question_id');
         $skippedQuestionsIds = DB::table('skipped_questions')->where('user_id', auth()->id())->pluck('question_id');
+
         // Users reached the maximum number of questions per test
         if (count($userQuestionsIds) == self::MAX_TEST_QUESTIONS) {
             return response()->json([
@@ -64,7 +72,7 @@ class MakeYourTestController extends Controller
 
         if (!$question) {
             return response()->json([
-                'no_results' => true
+                'answered_all' => true
             ]);
         }
 

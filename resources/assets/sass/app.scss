@@ -1,6 +1,28 @@
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.5s;
+.fade-enter-active {
+  transition: opacity 3s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+
+.fade-enter {
   opacity: 0;
+}
+
+.overlay {
+  /* Height & width depends on how you want to reveal the overlay (see JS below) */
+  height: 97%;
+  width: 97%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 30px;
+  position: fixed; /* Stay in place */
+  z-index: 999; /* Sit on top */
+  background-color: #ececec;
+  overflow: hidden;
+}
+
+.overlay .overlay-content {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
 }

@@ -8,9 +8,8 @@
             <div class="col-md-8">
                 <question-counter></question-counter>
                 <br>
-
                 <question></question>
-
+                <add-question></add-question>
             </div>
         </div>
     </div>
