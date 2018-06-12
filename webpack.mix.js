@@ -13,4 +13,5 @@ let mix = require('laravel-mix');
 
 mix.js('resources/assets/js/make-your-test.js', 'public/js')
     .sass('resources/assets/sass/base.scss', 'public/css')
+    .sass('resources/assets/sass/app.scss', 'public/css')
     .extract(['jquery', 'lodash', 'vue', 'axios', 'bootstrap', 'popper.js']);

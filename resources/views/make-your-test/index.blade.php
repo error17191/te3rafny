@@ -3,7 +3,7 @@
     <script src="{{mix('js/make-your-test.js')}}"></script>
 @endsection
 @section('content')
-    <div class="container">
+    <div class="container" id="make-your-test">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <question-counter></question-counter>

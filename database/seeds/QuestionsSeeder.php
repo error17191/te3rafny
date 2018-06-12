@@ -19,7 +19,7 @@ class QuestionsSeeder extends Seeder
         Question::truncate();
         Choice::truncate();
 
-        factory(Question::class, 50)->create()
+        factory(Question::class, 15)->create()
             ->each(function ($question) {
                 factory(Choice::class, 3)->create(['question_id' => $question->id]);
             });

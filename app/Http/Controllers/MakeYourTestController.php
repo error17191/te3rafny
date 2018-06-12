@@ -2,31 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Choice;
 use App\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MakeYourTestController extends Controller
 {
-    protected $acceptedQuestions;
-    protected $skippedQuestions;
-    protected $questionsToIgnore;
-
-    const MIN_TEST_QUESTIONS = 4;
+    const MIN_TEST_QUESTIONS = 5;
+    const MAX_TEST_QUESTIONS = 20;
 
     public function __construct()
     {
-        if (!session()->get('making-test')) {
-            session()->put('making-test');
-            $this->acceptedQuestions = [];
-            $this->skippedQuestions = [];
-            $this->questionsToIgnore = [];
-            session()->put('accepted_questions', json_encode([]));
-            session()->put('skipped_questions', json_encode([]));
-        } else {
-            $this->acceptedQuestions = $this->getAcceptedQuestions();
-            $this->skippedQuestions = $this->getSkippedQuestions();
-            $this->questionsToIgnore = array_merge($this->acceptedQuestions, $this->skippedQuestions);
-        }
+        $this->middleware('auth');
     }
 
     public function index()
@@ -34,57 +22,84 @@ class MakeYourTestController extends Controller
         return view('make-your-test.index');
     }
 
+    public function init()
+    {
+        return response()->json([
+            'urls' => [
+                'random' => route('make-your-test.random'),
+                'skip' => route('make-your-test.skip'),
+                'accept' => route('make-your-test.accept'),
+            ],
+            'numbers' => [
+                'min' => self::MIN_TEST_QUESTIONS,
+                'max' => self::MAX_TEST_QUESTIONS,
+                'accepted' => DB::table('user_questions')->where('user_id', auth()->id())->count(),
+                'skipped' => DB::table('skipped_questions')->where('user_id', auth()->id())->count()
+            ]
+        ]);
+    }
+
     public function random()
     {
-        $count = Question::count();
-        if ($count == count($this->questionsToIgnore)) {
-            $this->clearSkippedQuestions();
+        // Make sure the user didn't reach his limit of questions
+        // if the user reached end before reaching the limit and has skipped questions clear skipped questions
+        // if the user reached end before reaching the limit and has not skipped questions don't send questions
+        $allQuestionsCount = Question::count();
+        $userQuestionsIds = auth()->user()->questions()->pluck('question_id');
+        $skippedQuestionsIds = DB::table('skipped_questions')->where('user_id', auth()->id())->pluck('question_id');
+        // Users reached the maximum number of questions per test
+        if (count($userQuestionsIds) == self::MAX_TEST_QUESTIONS) {
+            return response()->json([
+                'reached_limit' => true
+            ]);
         }
-        $question = Question::inRandomOrder()->whereNotIn('id', $this->questionsToIgnore())->with('choices')->first();
+        // There's no more questions except the skipped questions
+        if (count($userQuestionsIds) + count($skippedQuestionsIds) == $allQuestionsCount) {
+            DB::table('skipped_questions')->where('user_id', auth()->id())->delete();
+            $skippedQuestionsIds = collect();
+        }
 
-        return response()->json(compact('question'));
+        $question = Question::inRandomOrder()
+            ->whereNotIn('id', $skippedQuestionsIds->merge($userQuestionsIds))->with('choices')->first();
+
+        if (!$question) {
+            return response()->json([
+                'no_results' => true
+            ]);
+        }
+
+        return response()->json([
+            'question' => $question,
+            'numbers' => [
+                'accepted' => count($userQuestionsIds),
+                'all' => $allQuestionsCount,
+                'skipped' => count($skippedQuestionsIds)
+            ]
+        ]);
     }
 
-
-    protected function getAcceptedQuestions()
+    public function skip(Request $request)
     {
-        return collect(json_decode(
-            session()->get('accepted_questions')
-        ))->pluck('question')->all() ?: [];
+        $question = Question::findOrFail($request->question);
+        $skipped = DB::table('skipped_questions')->insert([
+            'question_id' => $question->id,
+            'user_id' => auth()->id()
+        ]);
+
+        return response()->json(compact('skipped'));
     }
 
-    protected function getAcceptedQuestionsWithChoices()
+    public function accept(Request $request)
     {
-        return json_decode(session()->get('accepted_questions')) ?: [];
+        $question = Question::findOrFail($request->question);
+        $choice = Choice::findOrFail($request->choice);
+        $accepted = DB::table('user_questions')->insert([
+            'user_id' => auth()->id(),
+            'question_id' => $question->id,
+            'choice_id' => $choice->id
+        ]);
+
+        return response()->json(compact('accepted'));
     }
 
-    protected function addToAcceptedQuestions($questionId, $choiceId)
-    {
-        $this->acceptedQuestions[] = ['question' => $questionId, 'choice' => $choiceId];
-
-        session()->put('accepted_questions', json_encode($this->acceptedQuestions));
-    }
-
-    protected function getSkippedQuestions()
-    {
-        return json_decode(session()->get('skipped_questions')) ?: [];
-    }
-
-    protected function addToSkieppedQuestions($questionId)
-    {
-        $this->skippedQuestions[] = $questionId;
-
-        session()->put('skipped_questions', json_encode($this->skippedQuestions));
-    }
-
-    protected function questionsToIgnore()
-    {
-        return array_merge($this->skippedQuestions(), $this->acceptedQuestions());
-    }
-
-    protected function clearSkippedQuestions()
-    {
-        session()->forget('skipped_questions');
-        $this->questionsToIgnore = $this->acceptedQuestions;
-    }
 }

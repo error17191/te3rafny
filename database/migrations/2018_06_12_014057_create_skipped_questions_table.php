@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserQuestionsTable extends Migration
+class CreateSkippedQuestionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class CreateUserQuestionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_questions', function (Blueprint $table) {
+        Schema::create('skipped_questions', function (Blueprint $table) {
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('question_id')->index();
-            $table->unsignedInteger('choice_id');
         });
     }
 
@@ -27,6 +26,6 @@ class CreateUserQuestionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_questions');
+        Schema::dropIfExists('skipped_questions');
     }
 }

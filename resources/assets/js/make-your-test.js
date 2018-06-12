@@ -9,7 +9,7 @@ require('./bootstrap');
 window.Vue = require('vue');
 
 window.bus = new Vue();
-
+Vue.component('spinner',require('./components/Spinner.vue'));
 const app = new Vue({
     el: '#app',
     components: {
@@ -17,4 +17,8 @@ const app = new Vue({
         'question-counter' : require('./components/QuestionsCount.vue')
     }
 
+});
+axios.get('/make-your-test/init').then(response => {
+    window.appData = response.data;
+    bus.$emit('init-data-ready');
 });

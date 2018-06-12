@@ -9,7 +9,8 @@ class Question extends Model
 
     protected $fillable = ['content'];
 
-    protected $hidden = ['public', 'created_at', 'updated_at'];
+    protected $hidden = ['public', 'created_at'];
+
 
     public function choices()
     {
