@@ -17,6 +17,10 @@ class CreateUserQuestionsTable extends Migration
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('question_id')->index();
             $table->unsignedInteger('choice_id');
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('question_id')->references('id')->on('questions');
+            $table->foreign('choice_id')->references('id')->on('choices');
         });
     }
 

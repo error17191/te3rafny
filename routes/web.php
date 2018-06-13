@@ -29,6 +29,15 @@ Route::post('make-your-test/question/skip', 'MakeYourTestController@skip')
 Route::post('make-your-test/question/accept', 'MakeYourTestController@accept')
     ->name('make-your-test.accept');
 
+Route::post('make-your-test/question/add', 'MakeYourTestController@add')
+    ->name('make-your-test.add');
+
+
+Route::get('dashboard','Dashboard\DashboardController@index')->name('dashboard');
+
+Route::get('dashboard/init','Dashboard\DashboardController@init')->name('dashboard.init');
+
+
 
 Auth::routes();
 

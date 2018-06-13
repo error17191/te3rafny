@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Question extends Model
 {
 
-    protected $fillable = ['content'];
+    protected $fillable = ['content', 'public'];
 
-    protected $hidden = ['public', 'created_at'];
+    protected $hidden = ['public', 'updated_at', 'created_at'];
 
 
     public function choices()
@@ -28,4 +28,13 @@ class Question extends Model
         return $this->hasMany(Answer::class);
     }
 
+    public function scopePublic($query)
+    {
+        return $query->where('public', true);
+    }
+
+    public function scopePrivate($query)
+    {
+        return $query->where('public', false);
+    }
 }

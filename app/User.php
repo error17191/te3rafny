@@ -31,7 +31,7 @@ class User extends Authenticatable
     public function questions()
     {
         return $this->belongsToMany(Question::class, 'user_questions')
-            ->withPivot('correct_choice_id');
+            ->withPivot('choice_id');
     }
 
     public function isAdmin()

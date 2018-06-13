@@ -1,8 +1,8 @@
 <template>
     <transition name="fade">
         <div v-if="show" class="text-center">
-            <h3>You answered {{accepted}} Questions</h3>
-            <p v-if="accepted < minQuestions">You need at least to answer {{minQuestions}} questions to publish
+            <h3>You answered {{answered}} Questions</h3>
+            <p v-if="answered < minQuestions">You need at least to answer {{minQuestions}} questions to publish
                 your test</p>
             <div v-else>
                 <button class="btn btn-success btn-success">Publish Your Test</button>
@@ -14,7 +14,7 @@
     export default {
         data() {
             return {
-                accepted: 0,
+                answered: 0,
                 readyToGo: false,
                 minQuestions: 0,
                 maxQuestions: 0,
@@ -24,13 +24,12 @@
         mounted() {
             bus.$on('init-data-ready', () => {
                 this.show = true;
-                this.accepted = appData.numbers.accepted;
+                this.answered = appData.numbers.answered;
                 this.minQuestions = appData.numbers.min;
                 this.maxQuestions = appData.numbers.max;
             });
-            bus.$on('accepted-question', () => {
-                console.log("ACCEPTED QUESTION");
-                this.accepted++;
+            bus.$on('increment-questions', () => {
+                this.answered++;
             });
         },
 

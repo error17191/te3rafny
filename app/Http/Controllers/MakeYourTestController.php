@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Choice;
 use App\Question;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,11 +30,12 @@ class MakeYourTestController extends Controller
                 'random' => route('make-your-test.random'),
                 'skip' => route('make-your-test.skip'),
                 'accept' => route('make-your-test.accept'),
+                'add' => route('make-your-test.add'),
             ],
             'numbers' => [
                 'min' => self::MIN_TEST_QUESTIONS,
                 'max' => self::MAX_TEST_QUESTIONS,
-                'accepted' => DB::table('user_questions')->where('user_id', auth()->id())->count(),
+                'answered' => DB::table('user_questions')->where('user_id', auth()->id())->count(),
                 'skipped' => DB::table('skipped_questions')->where('user_id', auth()->id())->count()
             ]
         ]);
@@ -44,7 +46,7 @@ class MakeYourTestController extends Controller
         // Make sure the user didn't reach his limit of questions
         // if the user reached end before reaching the limit and has skipped questions clear skipped questions
         // if the user reached end before reaching the limit and has not skipped questions don't send questions
-        $allQuestionsCount = Question::count();
+        $allQuestionsCount = Question::public()->count();
 
         if ($allQuestionsCount == 0) {
             return response()->json([
@@ -53,6 +55,7 @@ class MakeYourTestController extends Controller
         }
 
         $userQuestionsIds = auth()->user()->questions()->pluck('question_id');
+
         $skippedQuestionsIds = DB::table('skipped_questions')->where('user_id', auth()->id())->pluck('question_id');
 
         // Users reached the maximum number of questions per test
@@ -67,7 +70,7 @@ class MakeYourTestController extends Controller
             $skippedQuestionsIds = collect();
         }
 
-        $question = Question::inRandomOrder()
+        $question = Question::public ()->inRandomOrder()
             ->whereNotIn('id', $skippedQuestionsIds->merge($userQuestionsIds))->with('choices')->first();
 
         if (!$question) {
@@ -79,7 +82,7 @@ class MakeYourTestController extends Controller
         return response()->json([
             'question' => $question,
             'numbers' => [
-                'accepted' => count($userQuestionsIds),
+                'answered' => count($userQuestionsIds),
                 'all' => $allQuestionsCount,
                 'skipped' => count($skippedQuestionsIds)
             ]
@@ -110,4 +113,33 @@ class MakeYourTestController extends Controller
         return response()->json(compact('accepted'));
     }
 
+    public function add(Request $request)
+    {
+        $request->validate([
+            'choices' => 'required|array|min:2',
+            'choices.*' => 'string|max:100',
+            'question' => 'required|string|max:255'
+        ]);
+
+        $question = Question::create([
+            'content' => $request->question,
+            'public' => false
+        ]);
+
+        $choices = [];
+
+        foreach ($request->choices as $choiceContent) {
+            $choice = new Choice();
+            $choice->content = $choiceContent;
+            $choices[] = $choice;
+        }
+
+        $choices = collect($question->choices()->saveMany($choices));
+
+        auth()->user()->questions()->attach($question, ['choice_id' => $choices->first()->id]);
+
+        return response()->json([
+            'created' => true
+        ]);
+    }
 }

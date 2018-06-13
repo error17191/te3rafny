@@ -12,16 +12,14 @@ window.bus = new Vue();
 const app = new Vue({
     el: '#app',
     components: {
-        question: require('./components/make-your-test/Question.vue'),
-        'question-counter' : require('./components/make-your-test/QuestionsCount.vue'),
-        'add-question' : require('./components/make-your-test/AddQuestionScreen.vue')
     },
 });
 
 setTimeout(function () {
     $('[data-toggle="tooltip"]').tooltip();
 },1000);
-axios.get('/make-your-test/init').then(response => {
+
+axios.get('/dashboard/init').then(response => {
     window.appData = response.data;
     bus.$emit('init-data-ready');
 });

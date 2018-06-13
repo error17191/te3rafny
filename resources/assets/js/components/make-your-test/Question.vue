@@ -8,7 +8,7 @@
                     <ul class="choices list-group">
                         <li @click="selectedChoice = choice.id"
                             v-for="choice in choices"
-                            :class="{'list-group':true,active: selectedChoice == choice.id}"
+                            :class="{'list-group choice':true,active: selectedChoice == choice.id}"
                             class="list-group-item">{{choice.content}}</li>
                     </ul>
                     <br>
@@ -81,7 +81,7 @@
                 this.disableButtons = true;
                 axios.post(appData.urls.accept, {question: this.question.id, choice: this.selectedChoice})
                     .then(response => {
-                        bus.$emit('accepted-question');
+                        bus.$emit('increment-questions');
                         this.getRandomQuestion();
                     });
             },
@@ -112,3 +112,8 @@
     }
 </script>
 
+<style>
+    .question-select .choice{
+        cursor: pointer;
+    }
+</style>
