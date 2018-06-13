@@ -19,6 +19,10 @@ const app = new Vue({
         'add-question' : require('./components/AddQuestionScreen.vue')
     },
 });
+
+setTimeout(function () {
+    $('[data-toggle="tooltip"]').tooltip();
+},1000);
 axios.get('/make-your-test/init').then(response => {
     window.appData = response.data;
     bus.$emit('init-data-ready');

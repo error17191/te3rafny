@@ -1,40 +1,42 @@
 <template>
     <transition name="fade">
-        <div v-if="question && ! answeredAll && ! reachedLimit" class="card">
-            <div class="card-header">{{question.content}}</div>
+        <div v-if="question && ! answeredAll && ! reachedLimit">
+            <div class="card question-select">
+                <div class="card-header">{{question.content}}</div>
 
-            <div class="card-body text-center">
-                <div class="radio" v-for="choice in choices">
-                    <label><input type="radio" name="choice" v-model="selectedChoice" :value="choice.id">{{choice.content}}</label>
+                <div class="card-body">
+                    <ul class="choices list-group">
+                        <li @click="selectedChoice = choice.id"
+                            v-for="choice in choices"
+                            :class="{'list-group':true,active: selectedChoice == choice.id}"
+                            class="list-group-item">{{choice.content}}</li>
+                    </ul>
+                    <br>
+                </div>
+
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col text-left">
+                            <button class="btn btn-dark" :disabled="disableButtons" @click="skip">Skip</button>
+                        </div>
+                        <div class="col text-right">
+                            <button class="btn btn-success" :disabled="!selectedChoice||disableButtons" @click="next">
+                                Next
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col text-left">
-                        <button class="btn btn-dark" :disabled="disableButtons" @click="skip">Skip</button>
-                    </div>
-                    <div class="col text-right">
-                        <button class="btn btn-success" :disabled="!selectedChoice||disableButtons" @click="next">Next
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-        <answered-all v-if="answeredAll"></answered-all>
-        <reached-limit v-if="reachedLimit"></reached-limit>
-        <no-questions v-if="noQuestions"></no-questions>
-        <div v-if="question">
-            <br>
             <br>
             <hr>
-            <h5 class="text-center">OR</h5>
+            <h4 class="text-center">OR</h4>
             <div class="text-center">
-                <button @click="bus.$emit('add-question')" class="btn btn-default">Add your own question</button>
+                <button class="btn btn-link" @click="addQuestion">Add your own question</button>
             </div>
         </div>
-
+        <answered-all v-else-if="answeredAll"></answered-all>
+        <reached-limit v-else-if="reachedLimit"></reached-limit>
+        <no-questions v-else-if="noQuestions"></no-questions>
     </transition>
 </template>
 
@@ -79,10 +81,11 @@
                 this.disableButtons = true;
                 axios.post(appData.urls.accept, {question: this.question.id, choice: this.selectedChoice})
                     .then(response => {
+                        bus.$emit('accepted-question');
                         this.getRandomQuestion();
                     });
             },
-            getRandomQuestion(){
+            getRandomQuestion() {
                 axios.get(appData.urls.random).then(response => {
                     if (response.data.no_results) {
                         this.answeredAll = true;
@@ -92,17 +95,20 @@
                         this.reachedLimit = true;
                         return;
                     }
-                    if(response.data.no_questions){
+                    if (response.data.no_questions) {
                         this.noQuestions = true;
                         return;
                     }
-                    bus.$emit('accepted-question');
                     this.disableButtons = false;
                     this.question = response.data.question;
                     this.choices = response.data.question.choices;
                     this.selectedChoice = null;
                 });
+            },
+            addQuestion() {
+                bus.$emit('add-question');
             }
         }
     }
 </script>
+

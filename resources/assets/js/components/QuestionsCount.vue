@@ -29,6 +29,7 @@
                 this.maxQuestions = appData.numbers.max;
             });
             bus.$on('accepted-question', () => {
+                console.log("ACCEPTED QUESTION");
                 this.accepted++;
             });
         },
