@@ -12,6 +12,7 @@ window.bus = new Vue();
 const app = new Vue({
     el: '#app',
     components: {
+        dashboard: require('./components/dashboard/Dashboard.vue')
     },
 });
 

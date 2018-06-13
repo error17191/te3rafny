@@ -37,7 +37,7 @@ Route::get('dashboard','Dashboard\DashboardController@index')->name('dashboard')
 
 Route::get('dashboard/init','Dashboard\DashboardController@init')->name('dashboard.init');
 
-
+Route::post('dashboard/questions','Dashboard\QuestionsController@store')->name('dashboard.questions.store');
 
 Auth::routes();
 

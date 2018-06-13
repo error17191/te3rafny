@@ -22,7 +22,7 @@
                                 <h5 class="text-center text-success font-weight-bold">Correct Answer: </h5>
                                 <input :disabled="posting" v-model="choices[0]" class="form-control choice"
                                        placeholder="* Required">
-                                <h5 :disabled="posting" class="text-center text-warning font-weight-bold">At least 1
+                                <h5 class="text-center text-warning font-weight-bold">At least 1
                                     other choice</h5>
                                 <input :disabled="posting" v-model="choices[1]" class="form-control choice"
                                        placeholder="* Required">
@@ -40,12 +40,13 @@
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <div class="col text-left">
-                            <button @click="cancel" :disabled="posting" type="button" class="btn btn-danger">Cancel</button>
+                            <button @click="cancel" :disabled="posting" type="button" class="btn btn-danger">Cancel
+                            </button>
                         </div>
                         <div class="col text-right">
-                            <button type="submit" :disabled="!canPost" class="btn btn-success">
+                            <button type="submit" :disabled="!canPost || posting" class="btn btn-success">
                                 <span v-show="!posting">Done</span>
-                                <span v-show = "posting">
+                                <span v-show="posting">
                                      <i class="fas fa-spinner fa-spin"></i>
                                 </span>
                             </button>
@@ -88,8 +89,11 @@
         },
         methods: {
             submitQuestion() {
+                if (this.posting) {
+                    return;
+                }
                 this.posting = true;
-                axios.post(appData.urls.add,{
+                axios.post(appData.urls.add, {
                     choices: this.choices, question: this.question
                 }).then(response => {
                     this.posting = false;
@@ -100,7 +104,7 @@
                     toastr.success('Question added :)')
                 });
             },
-            cancel(){
+            cancel() {
                 this.choices = [];
                 this.question = '';
                 $('#add-question').modal('hide');

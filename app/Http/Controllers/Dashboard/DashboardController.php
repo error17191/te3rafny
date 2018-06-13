@@ -14,6 +14,12 @@ class DashboardController extends Controller
 
     public function init()
     {
-        return response()->json();
+        return response()->json([
+            'urls' => [
+                'questions' => [
+                    'store' => route('dashboard.questions.store')
+                ]
+            ]
+        ]);
     }
 }
