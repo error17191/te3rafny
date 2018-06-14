@@ -32,12 +32,12 @@ Route::post('make-your-test/question/accept', 'MakeYourTestController@accept')
 Route::post('make-your-test/question/add', 'MakeYourTestController@add')
     ->name('make-your-test.add');
 
-
-Route::get('dashboard','Dashboard\DashboardController@index')->name('dashboard');
-
 Route::get('dashboard/init','Dashboard\DashboardController@init')->name('dashboard.init');
 
-Route::post('dashboard/questions','Dashboard\QuestionsController@store')->name('dashboard.questions.store');
+Route::get('dashboard/{any?}/{other?}/{route?}','Dashboard\DashboardController@index')->name('dashboard');
+
+
+Route::post('json/dashboard/questions','Dashboard\QuestionsController@store')->name('dashboard.questions.store');
 
 Auth::routes();
 
